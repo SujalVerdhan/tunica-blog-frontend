@@ -45,30 +45,37 @@ const App = () => {
   }, []);
 
   const handleFacebookLogin = () => {
+    if (!window.FB) {
+      console.error("Facebook SDK not loaded yet");
+      return;
+    }
+
     window.FB.login(
-      async (response) => {
+      (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
 
-          try {
-            // Send the access token to the backend
-            const res = await axios.post(
-              "https://tunica-blogs-backend.onrender.com/api/auth/facebook-login",
-              { accessToken },
-              { withCredentials: true } // Include cookies
-            );
-            console.log("Login successful:", res.data);
-          } catch (error) {
-            console.error(
-              "Error during Facebook login:",
-              error.response?.data || error.message
-            );
-          }
+          // Async call inside a synchronous wrapper
+          (async () => {
+            try {
+              const res = await axios.post(
+                "https://tunica-blogs-backend.onrender.com/api/auth/facebook-login",
+                { accessToken },
+                { withCredentials: true } // Include cookies
+              );
+              console.log("Login successful:", res.data);
+            } catch (error) {
+              console.error(
+                "Error during Facebook login:",
+                error.response?.data || error.message
+              );
+            }
+          })();
         } else {
           console.error("User cancelled login or did not fully authorize.");
         }
       },
-      { scope: "email,public_profile" } // Request email and profile permissions
+      { scope: "email,public_profile" }
     );
   };
 
