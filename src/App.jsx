@@ -39,7 +39,7 @@ const App = () => {
         appId: "435169396230093", // Replace with your Facebook App ID
         cookie: true,
         xfbml: true,
-        version: "v12.0",
+        version: "v15.0",
       });
     };
   }, []);
