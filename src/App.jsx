@@ -39,7 +39,7 @@ const App = () => {
         appId: "435169396230093", // Replace with your Facebook App ID
         cookie: true,
         xfbml: true,
-        version: "v15.0",
+        version: "v12.0",
       });
     };
   }, []);
@@ -59,7 +59,7 @@ const App = () => {
           (async () => {
             try {
               const res = await axios.post(
-                "http://localhost:5000/api/auth/facebook-login",
+                "https://tunica-blogs-backend.onrender.com/api/auth/facebook-login",
                 { accessToken },
                 { withCredentials: true } // Include cookies
               );
