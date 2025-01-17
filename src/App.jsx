@@ -64,23 +64,26 @@ const App = () => {
     }
 
     window.FB.login(
-      async (response) => {
+      (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
 
-          try {
-            const res = await axios.post(
-              "http://localhost:5000/api/auth/facebook-login", // Replace with your API endpoint
-              { accessToken },
-              { withCredentials: true }
-            );
-            console.log("Login successful:", res.data);
-          } catch (error) {
-            console.error(
-              "Error during Facebook login:",
-              error.response?.data || error.message
-            );
-          }
+          // Use an immediately invoked function expression (IIFE) for async logic
+          (async () => {
+            try {
+              const res = await axios.post(
+                "http://localhost:5000/api/auth/facebook-login", // Replace with your backend endpoint
+                { accessToken },
+                { withCredentials: true }
+              );
+              console.log("Login successful:", res.data);
+            } catch (error) {
+              console.error(
+                "Error during Facebook login:",
+                error.response?.data || error.message
+              );
+            }
+          })();
         } else {
           console.error("User cancelled login or did not fully authorize.");
         }
