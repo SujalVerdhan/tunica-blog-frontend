@@ -24,24 +24,37 @@ const App = () => {
   };
 
   useEffect(() => {
-    // Initialize Facebook SDK
-    (function (d, s, id) {
-      const fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      const js = d.createElement(s);
-      js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    })(document, "script", "facebook-jssdk");
-
-    window.fbAsyncInit = () => {
-      window.FB.init({
-        appId: "435169396230093", // Replace with your Facebook App ID
-        cookie: true,
-        xfbml: true,
-        version: "v12.0",
+    const loadFacebookSDK = () => {
+      return new Promise((resolve, reject) => {
+        (function (d, s, id) {
+          const fjs = d.getElementsByTagName(s)[0];
+          if (d.getElementById(id)) {
+            resolve();
+            return;
+          }
+          const js = d.createElement(s);
+          js.id = id;
+          js.src = "https://connect.facebook.net/en_US/sdk.js";
+          js.onload = resolve;
+          js.onerror = reject;
+          fjs.parentNode.insertBefore(js, fjs);
+        })(document, "script", "facebook-jssdk");
       });
     };
+
+    loadFacebookSDK()
+      .then(() => {
+        window.FB.init({
+          appId: "435169396230093", // Replace with your Facebook App ID
+          cookie: true,
+          xfbml: true,
+          version: "v15.0", // Use a valid Facebook Graph API version
+        });
+        console.log("Facebook SDK loaded and initialized");
+      })
+      .catch((err) => {
+        console.error("Failed to load Facebook SDK", err);
+      });
   }, []);
 
   const handleFacebookLogin = () => {
