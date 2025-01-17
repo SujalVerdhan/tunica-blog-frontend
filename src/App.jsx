@@ -72,7 +72,7 @@ const App = () => {
           (async () => {
             try {
               const res = await axios.post(
-                "https://tunica-blogs-backend.onrender.com/api/auth/facebook-login",
+                "http://localhost:5000/api/auth/facebook-login",
                 { accessToken },
                 { withCredentials: true } // Include cookies
               );
