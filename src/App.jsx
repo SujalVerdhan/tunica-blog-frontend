@@ -58,37 +58,47 @@ const App = () => {
   }, []);
 
   const handleFacebookLogin = () => {
-    if (!window.FB) {
-      console.error("Facebook SDK not loaded yet");
-      return;
-    }
-
     window.FB.login(
-      (response) => {
+      async (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
 
-          // Async call inside a synchronous wrapper
-          (async () => {
-            try {
-              const res = await axios.post(
-                "http://localhost:5000/api/auth/facebook-login",
-                { accessToken },
-                { withCredentials: true } // Include cookies
-              );
-              console.log("Login successful:", res.data);
-            } catch (error) {
-              console.error(
-                "Error during Facebook login:",
-                error.response?.data || error.message
-              );
-            }
-          })();
+          try {
+            // Fetch user data directly using the access token
+            window.FB.api(
+              "/me",
+              "GET",
+              { access_token: accessToken, fields: "id,name,email" },
+              async (userResponse) => {
+                if (userResponse && !userResponse.error) {
+                  console.log("User details from Facebook:", userResponse);
+
+                  // Send the access token to the backend
+                  const res = await axios.post(
+                    "https://tunica-blogs-backend.onrender.com/api/auth/facebook-login",
+                    { accessToken },
+                    { withCredentials: true } // Include cookies
+                  );
+                  console.log("Login successful:", res.data);
+                } else {
+                  console.error(
+                    "Error fetching user details:",
+                    userResponse.error
+                  );
+                }
+              }
+            );
+          } catch (error) {
+            console.error(
+              "Error during Facebook login:",
+              error.response?.data || error.message
+            );
+          }
         } else {
           console.error("User cancelled login or did not fully authorize.");
         }
       },
-      { scope: "email,public_profile" }
+      { scope: "email,public_profile" } // Request email and profile permissions
     );
   };
 
