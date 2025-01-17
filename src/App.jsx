@@ -26,68 +26,55 @@ const App = () => {
   useEffect(() => {
     const loadFacebookSDK = () => {
       return new Promise((resolve, reject) => {
-        (function (d, s, id) {
-          const fjs = d.getElementsByTagName(s)[0];
-          if (d.getElementById(id)) {
-            resolve();
-            return;
-          }
-          const js = d.createElement(s);
-          js.id = id;
-          js.src = "https://connect.facebook.net/en_US/sdk.js";
-          js.onload = resolve;
-          js.onerror = reject;
-          fjs.parentNode.insertBefore(js, fjs);
-        })(document, "script", "facebook-jssdk");
+        if (document.getElementById("facebook-jssdk")) {
+          resolve(); // SDK already loaded
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.id = "facebook-jssdk";
+        script.src = "https://connect.facebook.net/en_US/sdk.js";
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Failed to load Facebook SDK"));
+        document.body.appendChild(script);
       });
     };
 
     loadFacebookSDK()
       .then(() => {
-        window.FB.init({
-          appId: "435169396230093", // Replace with your Facebook App ID
-          cookie: true,
-          xfbml: true,
-          version: "v15.0", // Use a valid Facebook Graph API version
-        });
-        console.log("Facebook SDK loaded and initialized");
+        if (window.FB) {
+          window.FB.init({
+            appId: "435169396230093", // Replace with your Facebook App ID
+            cookie: true,
+            xfbml: true,
+            version: "v15.0", // Use a valid Facebook Graph API version
+          });
+          console.log("Facebook SDK loaded and initialized");
+        }
       })
       .catch((err) => {
-        console.error("Failed to load Facebook SDK", err);
+        console.error("Failed to load Facebook SDK:", err);
       });
   }, []);
 
   const handleFacebookLogin = () => {
+    if (!window.FB) {
+      console.error("Facebook SDK not loaded yet");
+      return;
+    }
+
     window.FB.login(
       async (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
 
           try {
-            // Fetch user data directly using the access token
-            window.FB.api(
-              "/me",
-              "GET",
-              { access_token: accessToken, fields: "id,name,email" },
-              async (userResponse) => {
-                if (userResponse && !userResponse.error) {
-                  console.log("User details from Facebook:", userResponse);
-
-                  // Send the access token to the backend
-                  const res = await axios.post(
-                    "https://tunica-blogs-backend.onrender.com/api/auth/facebook-login",
-                    { accessToken },
-                    { withCredentials: true } // Include cookies
-                  );
-                  console.log("Login successful:", res.data);
-                } else {
-                  console.error(
-                    "Error fetching user details:",
-                    userResponse.error
-                  );
-                }
-              }
+            const res = await axios.post(
+              "http://localhost:5000/api/auth/facebook-login", // Replace with your API endpoint
+              { accessToken },
+              { withCredentials: true }
             );
+            console.log("Login successful:", res.data);
           } catch (error) {
             console.error(
               "Error during Facebook login:",
@@ -101,7 +88,6 @@ const App = () => {
       { scope: "email,public_profile" } // Request email and profile permissions
     );
   };
-
   return (
     <>
       <GoogleOAuthProvider clientId="1096811418908-clkn2373bh04ggmkodi73rt58aebc880.apps.googleusercontent.com">
