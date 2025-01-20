@@ -6,11 +6,11 @@ import axios from "axios";
 const App = () => {
   const handleLoginSuccess = async (credentialResponse) => {
     const token = credentialResponse.credential;
-
+    console.log(token);
     try {
       const response = await axios.post(
         "https://tunica-blogs-backend.onrender.com/api/auth/google-login",
-        { token },
+        { accessToken },
         { withCredentials: true }
       );
       console.log("User details from backend:", response.data);
@@ -69,7 +69,7 @@ const App = () => {
           const accessToken = response.authResponse.accessToken;
 
           // Use an immediately invoked function expression (IIFE) for async logic
-          (async () => {
+          console.log(accessToken)(async () => {
             try {
               const res = await axios.post(
                 "http://localhost:5000/api/auth/facebook-login", // Replace with your backend endpoint
@@ -93,7 +93,7 @@ const App = () => {
   };
   return (
     <>
-      <GoogleOAuthProvider clientId="1096811418908-clkn2373bh04ggmkodi73rt58aebc880.apps.googleusercontent.com">
+      <GoogleOAuthProvider clientId="413844460861-qf9d78app2rli9t0b5l63pdqf5kcgkls.apps.googleusercontent.com">
         <div style={{ textAlign: "center", marginTop: "50px" }}>
           <h1>Google Authentication</h1>
           <GoogleLogin
