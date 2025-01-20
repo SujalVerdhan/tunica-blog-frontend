@@ -53,7 +53,7 @@ const App = () => {
         }
       })
       .catch((err) => {
-        console.error("Failed to load Facebook SDK:", err);
+        console.log("Failed to load Facebook SDK:", err);
       });
   }, []);
 
@@ -67,9 +67,10 @@ const App = () => {
       (response) => {
         if (response.authResponse) {
           const accessToken = response.authResponse.accessToken;
-
+          console.log(accessToken);
           // Use an immediately invoked function expression (IIFE) for async logic
-          console.log(accessToken)(async () => {
+
+          (async () => {
             try {
               const res = await axios.post(
                 "http://localhost:5000/api/auth/facebook-login", // Replace with your backend endpoint
